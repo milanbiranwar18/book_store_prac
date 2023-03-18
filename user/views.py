@@ -1,7 +1,7 @@
 # Create your views here.
 import logging
 
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -33,6 +33,7 @@ class UserLogin(APIView):
             serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            login(request, serializer.context.get("user"))
             return Response({"Message": "User login successfully", 'status': 201})
         except Exception as e:
             logging.error(e)
@@ -43,8 +44,9 @@ class UserLogout(APIView):
 
     def get(self, request):
         try:
-            logout(request)
-            return Response({"Message": "User logout successfully"}, status=201)
+            if request.user.is_authenticated:
+                logout(request)
+                return Response({"Message": "User logout successfully"}, status=201)
         except Exception as e:
             logging.error(e)
             return Response({"message": str(e)}, status=400)

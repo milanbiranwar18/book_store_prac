@@ -36,6 +36,7 @@ class LoginSerializer(serializers.Serializer):
             user = authenticate(**validated_data)
             if not user:
                 raise Exception('Invalid Credentials')
+            self.context.update({"user": user})
             return user
         except Exception as e:
             logging.error(e)
