@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 
 from book.models import Book
 from book.serializer import BookSerializer
+from user.utils import verify_token
 
 logging.basicConfig(filename="user_serializer.log",
                     filemode='a',
@@ -12,6 +13,7 @@ logging.basicConfig(filename="user_serializer.log",
 
 
 class BookAPI(APIView):
+    @verify_token
     def post(self, request):
         if not request.user.is_superuser:
             return Response({"message": "You do not have permission to perform this action."}, status=403)
@@ -25,6 +27,7 @@ class BookAPI(APIView):
             logging.error(e)
             return Response({"message": str(e)}, status=400)
 
+    @verify_token
     def get(self, request):
         try:
             books = Book.objects.filter(user=request.user.id)
@@ -34,6 +37,7 @@ class BookAPI(APIView):
             logging.error(e)
             return Response({"message": str(e)}, status=400)
 
+    @verify_token
     def put(self, request, id):
         if not request.user.is_superuser:
             return Response({"message": "You do not have permission to perform this action."}, status=403)
@@ -48,6 +52,7 @@ class BookAPI(APIView):
             logging.error(e)
             return Response({"message": str(e)}, status=400)
 
+    @verify_token
     def delete(self, request, id):
         if not request.user.is_superuser:
             return Response({"message": "You do not have permission to perform this action."}, status=403)

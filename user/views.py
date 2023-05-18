@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user.serializer import LoginSerializer, RegistrationSerializer
+from user.utils import JWT
 
 logging.basicConfig(filename="user.log",
                     filemode='a',
@@ -34,7 +35,9 @@ class UserLogin(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             login(request, serializer.context.get("user"))
-            return Response({"Message": "User login successfully", 'status': 201})
+            user = serializer.context.get("user")
+            token = JWT().encode(data={"user_id": user.id})
+            return Response({"Message": "User login successfully", "token":token, 'status': 201})
         except Exception as e:
             logging.error(e)
             return Response({"message": str(e)}, status=400)
