@@ -13,6 +13,8 @@ logging.basicConfig(filename="user_serializer.log",
 
 class BookAPI(APIView):
     def post(self, request):
+        if not request.user.is_superuser:
+            return Response({"message": "You do not have permission to perform this action."}, status=403)
         try:
             request.data.update({"user": request.user.id})
             serializer = BookSerializer(data=request.data)
@@ -33,6 +35,8 @@ class BookAPI(APIView):
             return Response({"message": str(e)}, status=400)
 
     def put(self, request, id):
+        if not request.user.is_superuser:
+            return Response({"message": "You do not have permission to perform this action."}, status=403)
         try:
             request.data.update({"user": request.user.id})
             book = Book.objects.get(id=id)
@@ -45,6 +49,8 @@ class BookAPI(APIView):
             return Response({"message": str(e)}, status=400)
 
     def delete(self, request, id):
+        if not request.user.is_superuser:
+            return Response({"message": "You do not have permission to perform this action."}, status=403)
         try:
             book = Book.objects.get(id=id, user=request.user.id)
             book.delete()
